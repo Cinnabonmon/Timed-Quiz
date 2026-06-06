@@ -67,11 +67,22 @@
     },
   ];
 
+  // Shuffle questions on load (Fisher-Yates algorithm)
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i >= 1; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    console.log("Shuffled questions:", array);
+    return array;
+  }
+
   // -----------------------------
   // 2) STATE
   // -----------------------------
   let i = 0; // current question index
   let score = 0; // number of correct answers
+  let highScore = localStorage.getItem("highScore") || 0; // track highest score across attempts (optional)
   const total = questions.length;
   let timeLeft = 60; // seconds remaining
   let timerId = null; // holds the setInterval id
@@ -97,6 +108,7 @@
   const resultModal = new bootstrap.Modal(resultModalEl);
   const finalScore = document.getElementById("finalScore");
   const finalTime = document.getElementById("finalTime");
+  const highestScore = document.getElementById("highestScore");
   const restartBtn = document.getElementById("restartBtn");
 
   // Initialize total in UI
@@ -206,6 +218,12 @@
 
     finalScore.textContent = `${score}/10`;
     finalTime.textContent = `${timeLeft}s`;
+    highestScore.textContent = `${Math.max(score, highScore)}`;
+
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem("highScore", score);
+    }
 
     // Show Bootstrap modal
     resultModal.show();
@@ -236,6 +254,7 @@
 
   // Initial render + timer start
 
+  shuffleArray(questions);
   render();
   startTimer();
 })();
